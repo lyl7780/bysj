@@ -29,9 +29,16 @@ spring:
     # 要运⽤于模板之上的模板模式。另⻅ StandardTemplate-ModeHandlers( 默认值： HTML5)
     mode: HTML5
     # 在构建 URL 时添加到视图名称前的前缀（默认值： classpath:/templates/ ）
-    prefix: classpath:/templates/
+    prefix: classpath:/static/
     # 在构建 URL 时添加到视图名称后的后缀（默认值： .html ）
     suffix: .html
+  redis:
+    host: localhost #默认为localhost
+    password: #默认为空
+    timeout: PT30M
+  session:
+    store-type: redis
+    timeout: PT30M
 # 应用服务 WEB 访问端口
 server:
   port: 80
@@ -42,4 +49,3 @@ mybatis-plus:
       id-type: auto
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-
