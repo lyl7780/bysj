@@ -15,4 +15,5 @@ import java.util.List;
 public interface UserDao extends BaseMapper<User> {
 
     List<attendDoctor> selectByDateAndOffice(@Param("date") String date, @Param("id") int officeId);
+    User selectOneByUsernameAndPasswordFromAdmin(@Param("username") String username,@Param("password") String password);
 }

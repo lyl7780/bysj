@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import HomeView from '../views/Home.vue'
 import AdminHomeView from '../views/admin/Home.vue'
 import AdminLoginView from '../views/admin/Login'
 import AdminIndex from '../views/admin/Index'
@@ -11,18 +10,6 @@ import store from "@/store";
 Vue.use(VueRouter)
 
 const routes = [
-  {
-    path: '/',
-    name: 'Home',
-    component: HomeView,
-    children: [
-      {
-        path: '/login',
-        name: 'Login',
-        component: () => import( '../views/Login.vue')
-      }
-    ]
-  },
   {
     path: '/admin',
     name: 'AdminHomeView',
@@ -75,7 +62,7 @@ router.beforeEach((to, from, next) => {
                         let route = menuToRoute(e)
                         //把路由添加到路由管理中
                         if(route){
-                            newRouters[1].children.push(route)
+                            newRouters[0].children.push(route)
                         }
                     })
                 }

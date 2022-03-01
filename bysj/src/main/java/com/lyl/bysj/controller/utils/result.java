@@ -6,23 +6,34 @@ import lombok.Data;
 * */
 @Data
 public class result {
-    private boolean flag;
+    private int code;
     private Object data;
     private String msg;
 
     public result(){}
 
-    public result(boolean flag){
-        this.flag = flag;
+    public static result success(Object o){
+        return success(200,"操作成功",o);
     }
 
-    public result(boolean flag,Object data){
-        this.flag = flag;
-        this.data = data;
+    public static result fail(String msg){
+        return fail(400,msg,null);
     }
 
-    public result(boolean flag,String msg){
-        this.flag = flag;
-        this.msg = msg;
+    public static result success(int code,String msg,Object data){
+        result r = new result();
+        r.setCode(code);
+        r.setMsg(msg);
+        r.setData(data);
+        return r;
     }
+
+    public static result fail(int code,String msg,Object data){
+        result r = new result();
+        r.setCode(code);
+        r.setMsg(msg);
+        r.setData(data);
+        return r;
+    }
+
 }

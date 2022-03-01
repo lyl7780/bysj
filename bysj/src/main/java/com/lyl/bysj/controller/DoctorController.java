@@ -18,15 +18,4 @@ public class DoctorController {
     @Autowired
     private DoctorService doctorService;
 
-    @GetMapping("/{username}/{password}")
-    public result login(@PathVariable String username, @PathVariable String password, HttpServletRequest request){
-        Doctor doctor = doctorService.login(username,password);
-        boolean flag = (doctor != null);
-        if(flag){
-            //登录成功，保存数据
-            HttpSession session = request.getSession();
-            session.setAttribute("doctor",doctor.getDoctorId());
-        }
-        return new result(flag,doctor);
-    }
 }

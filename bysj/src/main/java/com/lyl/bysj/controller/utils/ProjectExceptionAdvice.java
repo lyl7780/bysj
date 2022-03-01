@@ -12,6 +12,6 @@ public class ProjectExceptionAdvice {
     @ExceptionHandler
     public result doException(Exception e){
         e.printStackTrace();
-        return new result(false,"服务器故障，请联系管理员！");
+        return result.fail("服务器故障，请联系管理员！");
     }
 }

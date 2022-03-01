@@ -30,4 +30,9 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
     public List<attendDoctor> viewAttend(String date, int officeId) {
         return userDao.selectByDateAndOffice(date,officeId);
     }
+
+    @Override
+    public User adminLogin(String username, String password) {
+        return userDao.selectOneByUsernameAndPasswordFromAdmin(username,password);
+    }
 }

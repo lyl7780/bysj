@@ -9,4 +9,5 @@ import java.util.List;
 public interface UserService extends IService<User> {
     User login(String username, String password);
     List<attendDoctor> viewAttend(String date,int id);
+    User adminLogin(String username,String password);
 }

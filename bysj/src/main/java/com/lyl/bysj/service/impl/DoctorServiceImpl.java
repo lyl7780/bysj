@@ -3,7 +3,6 @@ package com.lyl.bysj.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lyl.bysj.dao.DoctorDao;
-import com.lyl.bysj.pojo.Admin;
 import com.lyl.bysj.pojo.Doctor;
 import com.lyl.bysj.service.DoctorService;
 import org.springframework.beans.factory.annotation.Autowired;

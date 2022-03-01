@@ -8,7 +8,7 @@
         <router-link to="/admin/index">
           <el-menu-item index="Index" @click="selectMenu({name: 'AdminIndex',title: '首页'})">
             <template slot="title">
-              <i class="el-icon-home"></i>
+              <i class="el-icon-s-home"></i>
               <span>首页</span>
             </template>
           </el-menu-item>

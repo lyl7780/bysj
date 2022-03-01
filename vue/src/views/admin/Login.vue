@@ -14,7 +14,7 @@
           <el-input v-model="adminLoginForm.username"></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password" style="width: 380px;">
-          <el-input v-model="adminLoginForm.password"></el-input>
+          <el-input v-model="adminLoginForm.password" show-password></el-input>
         </el-form-item>
         <el-form-item label="验证码" prop="code" style="width: 380px;height: 40px">
           <el-input v-model="adminLoginForm.code" style="width: 172px; float: left"></el-input>
@@ -30,6 +30,9 @@
 </template>
 
 <script>
+
+import qs from "qs";
+
 export default {
   name: "Login",
   data() {
@@ -52,17 +55,17 @@ export default {
           { min: 5, max: 5, message: '长度为 5 个字符', trigger: 'blur' }
         ],
       },
-      captchaImg:null
+      captchaImg:''
     };
   },
   methods: {
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          this.$axios.get('/admin/login',this.adminLoginForm).then(res =>{
+          this.$axios.post('/admin/login?'+qs.stringify(this.adminLoginForm)).then(res =>{
               const jwt = res.headers['Authorization']
               this.$store.commit('SET_TOKEN',jwt)
-              this.$router.push("/admin/index")
+              this.$router.push("/admin/index").catch(err =>{})
           })
         } else {
           console.log('error submit!!');
@@ -74,14 +77,14 @@ export default {
       this.$refs[formName].resetFields();
     },
     getCaptcha(){
-      this.$axios.get('/admin/captcha').then(res =>{
-          console.log("/admin/captcha")
-          console.log(res)
+      this.$axios.get('/captcha').then(res =>{
           this.adminLoginForm.token = res.data.data.token
           this.captchaImg = res.data.data.captchaImg
+          this.adminLoginForm.code = ''
       })
     }
   },
+
   created(){
     this.getCaptcha()
   }

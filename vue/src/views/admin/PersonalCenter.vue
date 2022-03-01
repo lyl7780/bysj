@@ -3,13 +3,13 @@
     <h2>修改密码</h2><br>
     <el-form :model="rstpwdForm" :rules="rules" ref="rstpwdForm" label-width="100px" class="rstpwdForm" >
       <el-form-item label="旧密码" prop="oldPassword" style="width: 380px;">
-        <el-input v-model="rstpwdForm.oldPassword"></el-input>
+        <el-input v-model="rstpwdForm.oldPassword" show-password></el-input>
       </el-form-item>
       <el-form-item label="新密码" prop="newPassword" style="width: 380px;">
-        <el-input v-model="rstpwdForm.newPassword"></el-input>
+        <el-input v-model="rstpwdForm.newPassword" show-password></el-input>
       </el-form-item>
       <el-form-item label="重复密码" prop="repeatPassword" style="width: 380px;height: 40px">
-        <el-input v-model="rstpwdForm.repeatPassword"></el-input>
+        <el-input v-model="rstpwdForm.repeatPassword" show-password></el-input>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="submitForm('rstpwdForm')">修改密码</el-button>
@@ -74,7 +74,7 @@ export default {
   },
   methods: {
     getUserInfo(){
-      this.$axios.get("/sys/userInfo").then(res =>{
+      this.$axios.get("/sys/admin/userInfo").then(res =>{
         this.userInfo = res.data.data
       })
     },

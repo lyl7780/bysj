@@ -19,20 +19,9 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/{username}/{password}")
-    public result login(@PathVariable String username, @PathVariable String password, HttpServletRequest request){
-        User user = userService.login(username,password);
-        boolean flag = (user != null);
-        if(flag){
-            //登录成功，保存数据
-            HttpSession session = request.getSession();
-            session.setAttribute("user",user.getUserId());
-        }
-        return new result(flag,user);
-    }
     //根据日期和科室查看可预约医生
     @GetMapping("/{date}/{officeId}")
     public result viewAttend(@PathVariable String date,@PathVariable int officeId){
-        return new result(true,userService.viewAttend(date,officeId));
+        return  result.success(userService.viewAttend(date,officeId));
     }
 }

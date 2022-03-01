@@ -7,6 +7,9 @@
         <result column="doctor_id" property="doctorId"/>
         <result column="name" property="doctorName"/>
     </resultMap>
+    <resultMap id="User" type="com.lyl.bysj.pojo.User">
+        <result column="id_card" property="idCard"/>
+    </resultMap>
     <select id="selectByDateAndOffice" resultMap="attendDoctorResultMap">
         select d.doctor_id,d.name,d.description,a.number
         from attend a,doctor d,department de
@@ -15,5 +18,14 @@
             <if test="id != 0">and d.office_id=#{id}</if>
             and a.doctor_id=d.doctor_id
             and d.office_id = de.office_id;
+    </select>
+    <select id="selectOneByUsernameAndPasswordFromAdmin" resultMap="User">
+        select u.id,u.username,u.password
+        from user u,user_role r
+        where
+            u.username=#{username}
+            and u.password=#{password}
+            and u.id=r.user_id
+            and (r.role_id=8 or r.role_id=9)
     </select>
 </mapper>
