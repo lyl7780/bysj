@@ -5,7 +5,7 @@
         <el-input v-model="searchForm.name" placeholder="名称" clearable></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button @click="getRolesByName">搜索</el-button>
+        <el-button @click="getRoles">搜索</el-button>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="dialogVisible=true">新增</el-button>
@@ -34,7 +34,7 @@
           width="120">
       </el-table-column>
       <el-table-column
-          prop="code"
+          prop="role"
           label="唯一编码"
           show-overflow-tooltip>
       </el-table-column>
@@ -89,8 +89,8 @@
         <el-form-item label="名称" prop="name" label-width="100px">
           <el-input v-model="editForm.name"></el-input>
         </el-form-item>
-        <el-form-item label="唯一编码" prop="code" label-width="100px">
-          <el-input v-model="editForm.code"></el-input>
+        <el-form-item label="唯一编码" prop="role" label-width="100px">
+          <el-input v-model="editForm.role"></el-input>
         </el-form-item>
         <el-form-item label="描述" prop="description" label-width="100px">
           <el-input v-model="editForm.description"></el-input>
@@ -149,7 +149,7 @@ export default {
       editForm: {
         id: '',
         name: '',
-        code: '',
+        role: '',
         description: '',
         status: ''
       },
@@ -157,7 +157,7 @@ export default {
         name: [
           {required: true, message: '请输入角色名称', trigger: 'blur'},
         ],
-        code: [
+        role: [
           {required: true, message: '请输入唯一编码', trigger: 'blur'},
         ],
         status: [
@@ -209,6 +209,7 @@ export default {
               type: "success",
               onClose: () => {
                 this.getRoles()
+                this.resetEditForm('editForm')
               }
             })
             this.resetEditForm('editForm')
@@ -222,15 +223,14 @@ export default {
       });
     },
     getRoles() {
-      this.$axios.get('/admin/sys/role/list/' + this.size + '/' + this.currentPage).then(res => {
-        this.tableData = res.data.data.records
-        this.size = res.data.data.size
-        this.currentPage = res.data.data.currentPage
-        this.total = res.data.data.total
-      })
-    },
-    getRolesByName() {
-      this.$axios.get('/admin/sys/role/list/' + this.size + '/' + this.currentPage + '/' + this.searchForm.name).then(res => {
+      this.$axios.get('/admin/sys/role/list' ,{
+        params: {
+          name: this.searchForm.name,
+          current: this.currentPage,
+          size: this.size
+        }
+
+      }).then(res => {
         this.tableData = res.data.data.records
         this.size = res.data.data.size
         this.currentPage = res.data.data.currentPage
@@ -247,7 +247,7 @@ export default {
         })
       }
 
-      this.$axios.delete('/admin/sys/role/del', ids).then(res => {
+      this.$axios.post('/admin/sys/role/del', ids).then(res => {
         this.$message({
           showClose: true,
           message: '删除成功！',
@@ -258,7 +258,7 @@ export default {
     },
     getPermHandle(id) {
       this.dialogVisiblePerm = true
-      this.$axios.get('/admin/sys/role/menu/' + id).then(res => {
+      this.$axios.get('/admin/sys/role/info/' + id).then(res => {
         this.$refs.permTree.setCheckedKeys(res.data.data.menuIds)
         this.permForm = res.data.data
       })

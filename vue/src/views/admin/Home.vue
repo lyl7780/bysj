@@ -13,7 +13,7 @@
               {{ userInfo.username }}<i class="el-icon-arrow-down el-icon--right"></i>
             </span>
             <el-dropdown-menu slot="dropdown">
-              <router-link to="/admin/personalCenter" @click="selectMenu({name: 'personalCenter',title: '个人中心'})">
+              <router-link to="/personalCenter" @click="selectMenu({name: 'personalCenter',title: '个人中心'})">
                 <el-dropdown-item>
                   个人中心
                 </el-dropdown-item>
@@ -58,12 +58,12 @@ export default {
       })
     },
     logout(){
-      this.$axios.post('/admin/logout').then( res =>{
+      this.$axios.post('/logout').then( res =>{
         localStorage.clear()
         sessionStorage.clear()
         this.$store.commit("resetState")
         this.$store.commit("resetStateMenu")
-        this.$router.replace('/admin/login')
+        this.$router.replace('/login')
       })
 
     },

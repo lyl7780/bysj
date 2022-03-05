@@ -19,9 +19,4 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    //根据日期和科室查看可预约医生
-    @GetMapping("/{date}/{officeId}")
-    public result viewAttend(@PathVariable String date,@PathVariable int officeId){
-        return  result.success(userService.viewAttend(date,officeId));
-    }
 }

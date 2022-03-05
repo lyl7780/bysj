@@ -4,31 +4,37 @@ import AdminHomeView from '../views/admin/Home.vue'
 import AdminLoginView from '../views/admin/Login'
 import AdminIndex from '../views/admin/Index'
 import Tabs from '../views/admin/inc/Tabs'
-import axios from "@/axios";
+import axios from "../axios";
 import store from "@/store";
 
 Vue.use(VueRouter)
 
 const routes = [
   {
-    path: '/admin',
+    path: '/',
     name: 'AdminHomeView',
     component: AdminHomeView,
     children: [
       {
-        path: '/admin/index',
+        path: '/index',
         name: 'AdminIndex',
+        meta: {
+          title: "首页"
+        },
         component: AdminIndex
       },
       {
-        path: '/admin/personalCenter',
+        path: '/personalCenter',
         name: 'personalCenter',
+        meta:{
+            title: "个人中心"
+        },
         component: ()=> import('@/views/admin/PersonalCenter.vue')
       },
     ]
   },
   {
-    path: '/admin/login',
+    path: '/login',
     name: 'AdminLogin',
     component: AdminLoginView
   }

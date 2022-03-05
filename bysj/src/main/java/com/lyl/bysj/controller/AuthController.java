@@ -15,16 +15,31 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+
+/**
+ * 权限相关
+ */
 @RestController
 public class AuthController extends BaseController{
 
     @Autowired
     Producer producer;
 
+
+    /**
+     * 获取验证码
+     * @return
+     * @throws IOException
+     */
     @GetMapping("/captcha")
     public result captcha() throws IOException {
         String key = UUID.randomUUID().toString();
         String code = producer.createText();
+
+        //测试用
+        key = "aaaaa";
+        code = "11111";
+
         BufferedImage image = producer.createImage(code);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ImageIO.write(image,"png",outputStream);

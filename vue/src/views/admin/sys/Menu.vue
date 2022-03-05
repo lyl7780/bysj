@@ -59,6 +59,14 @@
         </template>
       </el-table-column>
       <el-table-column
+          prop="created"
+          label="创建时间">
+      </el-table-column>
+      <el-table-column
+          prop="updated"
+          label="更新时间">
+      </el-table-column>
+      <el-table-column
           prop="operate"
           label="操作">
         <template slot-scope="scope">
@@ -138,6 +146,7 @@ export default {
     return {
       dialogVisible: false,
       editForm: {
+        id: '',
         parentId: '',
         name: '',
         perm: '',
@@ -146,7 +155,9 @@ export default {
         component: '',
         status: '',
         type: '',
-        orderNum: ''
+        orderNum: '',
+        created: '',
+        updated: '',
       },
       editFormRules: {
         parentId: [
@@ -175,7 +186,7 @@ export default {
     postForm(formName) {//创建新数据
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          this.$axios.post('/admin/sys/menu/'+(this.editForm.id?'update'+this.editForm.id:'save'),this.editForm).then(res =>{
+          this.$axios.post('/admin/sys/menu/'+(this.editForm.id?'update':'save'),this.editForm).then(res =>{
             this.$message({
               showClose: true,
               message: '创建成功！',
@@ -218,7 +229,7 @@ export default {
       })
     },
     deleteHandle(id){
-      this.$axios.delete('/admin/sys/menu/del',id).then( res =>{
+      this.$axios.delete('/admin/sys/menu/del/'+id).then( res =>{
         this.$message({
           showClose: true,
           message: '删除成功！',

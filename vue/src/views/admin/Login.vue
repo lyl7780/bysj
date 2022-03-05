@@ -62,10 +62,10 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          this.$axios.post('/admin/login?'+qs.stringify(this.adminLoginForm)).then(res =>{
-              const jwt = res.headers['Authorization']
+          this.$axios.post('/login?'+qs.stringify(this.adminLoginForm)).then(res =>{
+              const jwt = res.headers['authorization']
               this.$store.commit('SET_TOKEN',jwt)
-              this.$router.push("/admin/index").catch(err =>{})
+              this.$router.push("/index").catch(err =>{})
           })
         } else {
           console.log('error submit!!');

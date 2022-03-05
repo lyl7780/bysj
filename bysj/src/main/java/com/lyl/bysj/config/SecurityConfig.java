@@ -1,15 +1,16 @@
 package com.lyl.bysj.config;
 
-import com.lyl.bysj.security.CaptchaFilter;
-import com.lyl.bysj.security.LoginFailureHandler;
-import com.lyl.bysj.security.LoginSuccessHandler;
+import com.lyl.bysj.security.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -26,6 +27,29 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private CaptchaFilter captchaFilter;
 
+    @Autowired
+    private JwtAccessDeniedHandler jwtAccessDeniedHandler;
+
+    @Autowired
+    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+
+    @Autowired
+    UserDetailServiceImpl userDetailService;
+
+    @Autowired
+    JwtLogoutSuccessHandler jwtLogoutSuccessHandler;
+
+    @Bean
+    JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
+        return new JwtAuthenticationFilter(authenticationManager());
+    }
+
+    @Bean
+    BCryptPasswordEncoder bCryptPasswordEncoder(){
+        return new BCryptPasswordEncoder();
+    }
+
+    //这里的接口，老子不拦截
     private static final String[] URL_WHITELIST = {
             "/admin/login",
             "/admin/logout",
@@ -42,6 +66,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin()
                 .successHandler(loginSuccessHandler)
                 .failureHandler(loginFailureHandler)
+
+                .and()
+                .logout()
+                .logoutSuccessHandler(jwtLogoutSuccessHandler)
         //禁用Session
                 .and()
                 .sessionManagement()
@@ -54,11 +82,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(URL_WHITELIST).permitAll()
                 .anyRequest().authenticated()
         //异常处理器
-
+                .and()
+                .exceptionHandling()
+                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                .accessDeniedHandler(jwtAccessDeniedHandler)
         //配置自定义的过滤器
                 .and()
+                .addFilter(jwtAuthenticationFilter())
                 .addFilterBefore(captchaFilter, UsernamePasswordAuthenticationFilter.class);
-        ;
+
     }
 
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userDetailService);
+    }
 }

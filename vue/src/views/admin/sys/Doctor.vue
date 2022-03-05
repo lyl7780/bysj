@@ -5,13 +5,13 @@
         <el-input v-model="searchForm.name" placeholder="用户名" clearable></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button @click="getDoctorsByName">搜索</el-button>
+        <el-button @click="getDoctors">搜索</el-button>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="newlyDoctor">新增</el-button>
       </el-form-item>
       <el-form-item>
-        <el-popconfirm title="确定批量删除吗？" @confirm="deleteHandle(null)" v-if="hasAuth('sys:doctor:del')">
+        <el-popconfirm title="确定批量删除吗？" @confirm="deleteHandle(null)">
           <el-button type="danger" slot="reference" :disabled="delBtnStatus">批量删除</el-button>
         </el-popconfirm>
       </el-form-item>
@@ -51,12 +51,9 @@
           show-overflow-tooltip>
       </el-table-column>
       <el-table-column
-          prop="officeId"
-          label="部门"
+          prop="office"
+          label="部门ID"
           show-overflow-tooltip>
-        <template slot-scope="scope" v-for="item in department">
-          <span  >{{item.name}}</span>
-        </template>
       </el-table-column>
       <el-table-column
           prop="description"
@@ -64,7 +61,7 @@
           show-overflow-tooltip>
       </el-table-column>
       <el-table-column
-          prop="createTime"
+          prop="created"
           label="创建时间"
           show-overflow-tooltip>
       </el-table-column>
@@ -82,10 +79,12 @@
           label="操作"
           show-overflow-tooltip>
         <template slot-scope="scope">
-          <el-button type="text" @click="getHandle(scope.row.id)" v-if="hasAuth('sys:doctor:edit')">编辑</el-button>
-          <el-divider direction="vertical" v-if="hasAuth('sys:doctor:edit')"></el-divider>
+          <el-button type="text" @click="repassHandle(scope.row.id, scope.row.username)">重置密码</el-button>
+          <el-divider direction="vertical"></el-divider>
+          <el-button type="text" @click="getHandle(scope.row.id)">编辑</el-button>
+          <el-divider direction="vertical"></el-divider>
           <template>
-            <el-popconfirm title="确定删除吗？" @confirm="deleteHandle(scope.row.id)" v-if="hasAuth('sys:doctor:del')">
+            <el-popconfirm title="确定删除吗？" @confirm="deleteHandle(scope.row.id)">
               <el-button slot="reference" type="text">删除</el-button>
             </el-popconfirm>
           </template>
@@ -106,7 +105,7 @@
         title="医生信息"
         :visible.sync="dialogVisibleDoctor"
         width="600px"
-        :before-close="HandlerClose"
+        :before-close="this.HandlerClose"
     >
       <el-form :model="doctorForm" :rules="doctorFormRules" ref="doctorForm" label-width="100px" class="demo-editForm">
         <el-form-item label="用户名" prop="username" label-width="100px">
@@ -115,15 +114,15 @@
         <el-form-item label="姓名" prop="name" label-width="100px">
           <el-input v-model="doctorForm.name"></el-input>
         </el-form-item>
-        <el-form-item label="密码" prop="password" label-width="100px">
-          <el-input v-model="doctorForm.password" show-password></el-input>
-        </el-form-item>
         <el-form-item label="部门" prop="office" label-width="100px">
           <el-select v-model="doctorForm.officeId" placeholder="请选择部门">
             <template v-for="item in department">
-              <el-option :label="item.name" :value="item.id"></el-option>
+              <el-option :label="item.name" :value="item.officeId"></el-option>
             </template>
           </el-select>
+        </el-form-item>
+        <el-form-item label="介绍" prop="description" label-width="100px">
+          <el-input v-model="doctorForm.description"></el-input>
         </el-form-item>
         <el-form-item label="状态" prop="status" label-width="100px">
           <el-radio-group v-model="doctorForm.status">
@@ -132,7 +131,7 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="postForm('doctorForm')" v-if="hasAuth('sys:doctor:edit')">立即修改</el-button>
+          <el-button type="primary" @click="postForm('doctorForm')">立即修改</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -172,9 +171,8 @@ export default {
         username: '',
         officeId: '',
         description: '',
-        password: '',
         status: '',
-        createTime: ''
+        created: ''
       },
       doctorFormRules: {
         name: [
@@ -206,16 +204,13 @@ export default {
       console.log(`当前页: ${val}`);
     },
     getDoctors() {
-      this.getDepartments()
-      this.$axios.get('/admin/sys/doctor/list/' + this.size + '/' + this.currentPage).then(res => {
-        this.tableData = res.data.data.records
-        this.size = res.data.data.size
-        this.currentPage = res.data.data.currentPage
-        this.total = res.data.data.total
-      })
-    },
-    getDoctorsByName() {
-      this.$axios.get('/admin/sys/doctor/list/' + this.size + '/' + this.currentPage + '/' + this.searchForm.name).then(res => {
+      this.$axios.get('/admin/sys/doctor/list' ,{
+        params: {
+          name: this.searchForm.name,
+          current: this.currentPage,
+          size: this.size
+        }
+      }).then(res => {
         this.tableData = res.data.data.records
         this.size = res.data.data.size
         this.currentPage = res.data.data.currentPage
@@ -237,7 +232,7 @@ export default {
         })
       }
 
-      this.$axios.delete('/admin/sys/doctor/del', ids).then(res => {
+      this.$axios.post('/admin/sys/doctor/del', ids).then(res => {
         this.$message({
           showClose: true,
           message: '删除成功！',
@@ -249,16 +244,18 @@ export default {
     postForm(formName) {//提交修改
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          this.$axios.post('/admin/sys/doctor/' +(this.doctorForm.id?'update'+this.doctorForm.id:'save'), this.doctorForm).then(res => {
+          this.$axios.post('/admin/sys/doctor/' +(this.doctorForm.id?'update':'save'), this.doctorForm).then(res => {
             this.$message({
               showClose: true,
               message: '提交成功！',
               type: "success",
               onClose: () => {
                 this.getDoctors()
+                this.resetForm('doctorForm')
               }
             })
-            this.HandlerClose()
+            this.resetForm('doctorForm')
+            this.dialogVisibleDoctor = false
           })
         } else {
           console.log('error submit!!');
@@ -266,13 +263,36 @@ export default {
         }
       });
     },
+    repassHandle(id, username) {
+
+      this.$confirm('将重置用户【' + username + '】的密码, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$axios.post("/admin/sys/user/repass", id).then(res => {
+          this.$message({
+            showClose: true,
+            message: '恭喜你，操作成功',
+            type: 'success',
+            onClose: () => {
+            }
+          });
+        })
+      })
+    },
     resetForm(formName) {
       this.$refs[formName].resetFields();
     },
     newlyDoctor(){
       this.dialogVisibleDoctor = true
       this.disUsername = false
-      this.getDepartments()
+      this.doctorForm.id = ''
+      console.log(this.doctorForm)
+    },
+    HandlerClose(){
+      this.resetForm('doctorForm')
+      this.dialogVisibleDoctor = false
     },
     getHandle(id) {
       this.$axios.get('/admin/sys/doctor/info/' + id).then(res => {
@@ -283,13 +303,10 @@ export default {
         })
       })
     },
-    HandlerClose(){
-      this.resetForm('doctorForm')
-      this.dialogVisibleDoctor = false
-    },
   },
   created() {
     this.getDoctors()
+    this.getDepartments()
   }
 }
 </script>

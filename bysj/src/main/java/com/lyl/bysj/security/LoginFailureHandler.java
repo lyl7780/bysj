@@ -22,7 +22,7 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
         httpServletResponse.setContentType("application/json;charset=UTF-8");
         ServletOutputStream outputStream = httpServletResponse.getOutputStream();
 
-        result result = com.lyl.bysj.controller.utils.result.fail(e.getMessage());
+        result result = com.lyl.bysj.controller.utils.result.fail("Bad credentials".equals(e.getMessage())?"用户名或密码错误":e.getMessage());
         outputStream.write(JSONUtil.toJsonStr(result).getBytes(StandardCharsets.UTF_8));
         outputStream.flush();
         outputStream.close();

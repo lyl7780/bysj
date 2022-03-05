@@ -10,7 +10,7 @@
     name: "App",
     watch: {
       $route(to,from){
-        if(to.path !== '/admin/login'){
+        if(to.path !== '/login'){
           let obj = {
             name: to.name,
             title: to.meta.title

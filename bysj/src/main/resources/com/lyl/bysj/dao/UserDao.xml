@@ -3,22 +3,15 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lyl.bysj.dao.UserDao">
-    <resultMap id="attendDoctorResultMap" type="com.lyl.bysj.pojo.attendDoctor">
-        <result column="doctor_id" property="doctorId"/>
-        <result column="name" property="doctorName"/>
-    </resultMap>
     <resultMap id="User" type="com.lyl.bysj.pojo.User">
         <result column="id_card" property="idCard"/>
     </resultMap>
-    <select id="selectByDateAndOffice" resultMap="attendDoctorResultMap">
-        select d.doctor_id,d.name,d.description,a.number
-        from attend a,doctor d,department de
-        where
-            a.date=#{date}
-            <if test="id != 0">and d.office_id=#{id}</if>
-            and a.doctor_id=d.doctor_id
-            and d.office_id = de.office_id;
-    </select>
+    <resultMap id="DoctorDto" type="com.lyl.bysj.common.dto.DoctorDto">
+        <result column="dname" property="office"/>
+    </resultMap>
+    <resultMap id="DoctorFormDto" type="com.lyl.bysj.common.dto.DoctorFormDto">
+        <result column="office_id" property="officeId"/>
+    </resultMap>
     <select id="selectOneByUsernameAndPasswordFromAdmin" resultMap="User">
         select u.id,u.username,u.password
         from user u,user_role r
@@ -27,5 +20,29 @@
             and u.password=#{password}
             and u.id=r.user_id
             and (r.role_id=8 or r.role_id=9)
+    </select>
+    <select id="getNavMenuIds" resultType="java.lang.Integer">
+        select distinct rm.menu_id
+        from user_role ur
+        left join role_menu rm on ur.role_id = rm.role_id
+        where ur.user_id = #{id}
+    </select>
+    <select id="listByMenuId" resultMap="User">
+        select distinct u.*
+        from user_role ur
+        left join role_menu rm on ur.role_id = rm.role_id
+        left join user u on ur.user_id = u.id
+        where rm.menu_id = #{id}
+    </select>
+    <select id="doctorList" resultMap="DoctorDto">
+        select u.id,u.username,u.avatar,u.description,u.name,u.created,u.updated,d.dname,u.status
+        from user u,department d,department_doctor dd
+        where <if test="name != ''">u.username like '%${name}%' and</if> u.id = dd.doctor_id and dd.department = d.office_id
+        limit #{current},#{size}
+    </select>
+    <select id="doctorInfo" resultMap="DoctorFormDto">
+        select u.id,u.username,u.avatar,u.description,u.name,u.created,u.updated,d.office_id,u.status
+        from user u,department d,department_doctor dd
+        where u.id = #{id} and u.id = dd.doctor_id and dd.department = d.office_id
     </select>
 </mapper>

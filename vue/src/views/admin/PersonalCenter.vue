@@ -49,12 +49,7 @@ export default {
       }
     };
     return{
-      userInfo: {
-        id: "",
-        username: ""
-      },
       rstpwdForm:{
-        id: '',
         oldPassword: '',
         newPassword: '',
         repeatPassword: ''
@@ -73,21 +68,15 @@ export default {
     }
   },
   methods: {
-    getUserInfo(){
-      this.$axios.get("/sys/admin/userInfo").then(res =>{
-        this.userInfo = res.data.data
-      })
-    },
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if(valid){
           const _this = this
-          this.rstpwdForm.id = this.userInfo.id
           this.$axios.post('/admin/resetPassword',this.rstpwdForm).then( res =>{
             _this.$alert(res.data.msg,'提示',{
               confirmButtonText:'确定',
               callback:action => {
-                this.$refs[formName].resetFields();
+                this.logout()
               }
             });
           })
@@ -97,12 +86,21 @@ export default {
         }
       });
     },
+    logout(){
+      this.$axios.post('/logout').then( res =>{
+        localStorage.clear()
+        sessionStorage.clear()
+        this.$store.commit("resetState")
+        this.$store.commit("resetStateMenu")
+        this.$router.replace('/login')
+      })
+
+    },
     resetForm(formName){
       this.$refs[formName].resetFields();
     }
   },
   created() {
-    this.getUserInfo()
   }
 }
 </script>

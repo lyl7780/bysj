@@ -5,7 +5,7 @@
         <el-input v-model="searchForm.name" placeholder="用户名" clearable></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button @click="getUsersByName">搜索</el-button>
+        <el-button @click="getUsers">搜索</el-button>
       </el-form-item>
       <el-form-item>
         <el-popconfirm title="确定批量删除吗？" @confirm="deleteHandle(null)">
@@ -58,8 +58,13 @@
           show-overflow-tooltip>
       </el-table-column>
       <el-table-column
-          prop="createTime"
+          prop="created"
           label="创建时间"
+          show-overflow-tooltip>
+      </el-table-column>
+      <el-table-column
+          prop="updated"
+          label="修改时间"
           show-overflow-tooltip>
       </el-table-column>
       <el-table-column
@@ -76,6 +81,8 @@
           label="操作"
           show-overflow-tooltip>
         <template slot-scope="scope">
+          <el-button type="text" @click="repassHandle(scope.row.id, scope.row.username)">重置密码</el-button>
+          <el-divider direction="vertical"></el-divider>
           <el-button type="text" @click="getHandle(scope.row.id)">编辑</el-button>
           <el-divider direction="vertical"></el-divider>
           <template>
@@ -107,9 +114,6 @@
         </el-form-item>
         <el-form-item label="姓名" prop="name" label-width="100px">
           <el-input v-model="userForm.name"></el-input>
-        </el-form-item>
-        <el-form-item label="密码" prop="password" label-width="100px">
-          <el-input v-model="userForm.password" show-password></el-input>
         </el-form-item>
         <el-form-item label="身份证号" prop="phone" label-width="100px">
           <el-input v-model="userForm.idCard"></el-input>
@@ -161,11 +165,10 @@ export default {
         avatar: '',
         name: '',
         username: '',
-        password: '',
         idCard: '',
         status: '',
         phone: '',
-        createTime: ''
+        created: ''
       },
       userFormRules: {
         name: [
@@ -196,15 +199,13 @@ export default {
       console.log(`当前页: ${val}`);
     },
     getUsers() {
-      this.$axios.get('/admin/sys/user/list/' + this.size + '/' + this.currentPage).then(res => {
-        this.tableData = res.data.data.records
-        this.size = res.data.data.size
-        this.currentPage = res.data.data.currentPage
-        this.total = res.data.data.total
-      })
-    },
-    getUsersByName() {
-      this.$axios.get('/admin/sys/user/list/' + this.size + '/' + this.currentPage + '/' + this.searchForm.name).then(res => {
+      this.$axios.get('/admin/sys/user/list' ,{
+        params: {
+          name: this.searchForm.name,
+          current: this.currentPage,
+          size: this.size
+        }
+      }).then(res => {
         this.tableData = res.data.data.records
         this.size = res.data.data.size
         this.currentPage = res.data.data.currentPage
@@ -221,19 +222,19 @@ export default {
         })
       }
 
-      this.$axios.delete('/admin/sys/user/del', ids).then(res => {
+      this.$axios.post('/admin/sys/user/del', ids).then(res => {
         this.$message({
           showClose: true,
           message: '删除成功！',
           type: "success",
         })
-        this.getRoles()
+        this.getUsers()
       })
     },
     putForm(formName) {//提交修改
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          this.$axios.put('/admin/sys/user/' + this.userForm.id, this.userForm).then(res => {
+          this.$axios.put('/admin/sys/user', this.userForm).then(res => {
             this.$message({
               showClose: true,
               message: '创建成功！',
@@ -250,6 +251,24 @@ export default {
           return false;
         }
       });
+    },
+    repassHandle(id, username) {
+
+      this.$confirm('将重置用户【' + username + '】的密码, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$axios.post("/admin/resetPassword", id).then(res => {
+          this.$message({
+            showClose: true,
+            message: '恭喜你，操作成功',
+            type: 'success',
+            onClose: () => {
+            }
+          });
+        })
+      })
     },
     getHandle(id) {
       this.$axios.get('/admin/sys/user/info/' + id).then(res => {
