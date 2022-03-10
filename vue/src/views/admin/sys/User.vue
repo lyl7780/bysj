@@ -259,7 +259,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$axios.post("/admin/resetPassword", id).then(res => {
+        this.$axios.post("/admin/sys/user/repass", id).then(res => {
           this.$message({
             showClose: true,
             message: '恭喜你，操作成功',

@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.lyl.bysj.common.dto.DoctorDto;
 import com.lyl.bysj.common.dto.DoctorFormDto;
+import com.lyl.bysj.common.vo.UserVo;
 import com.lyl.bysj.pojo.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -23,4 +24,6 @@ public interface UserDao extends BaseMapper<User> {
     List<User> listByMenuId(@Param("id") int menuId);
     List<DoctorDto> doctorList(@Param("current") Long current,@Param("size") Long size,@Param("name") String name);
     DoctorFormDto doctorInfo(int id);
+
+    void insertUser(@Param("userVo") UserVo userVo);
 }

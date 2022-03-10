@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lyl.bysj.dao.orderDao">
+    <resultMap id="orderDoctorDto" type="com.lyl.bysj.common.dto.orderDoctorDto">
+        <result column="order_id" property="orderId"/>
+        <result column="id_card" property="idCard"/>
+        <result column="diagnosis_status" property="diagnosisStatus"/>
+    </resultMap>
+    <resultMap id="orderUserDto" type="com.lyl.bysj.common.dto.orderUserDto">
+        <result column="order_id" property="orderId"/>
+        <result column="dname" property="department"/>
+    </resultMap>
+    <select id="getDoctorOrders" resultMap="orderDoctorDto">
+        select o.order_id,u.name,u.id_card,a.date,u.cov,o.diagnosis_status
+        from `order` o,user u,attend a
+        where
+              o.attend_id in (select a.attend_id
+                              from attend a,user u
+                              where a.date = #{localDate} and u.username = #{doctorName} and a.doctor_id = u.id)
+              and o.user_id = u.id and a.attend_id = o.attend_id and o.register_status = 1;
+    </select>
+    <select id="getOrderById" resultMap="orderDoctorDto">
+        select o.order_id,u.name,u.id_card,u.cov,o.diagnosis
+        from `order` o,user u
+        where o.order_id = #{orderId} and u.id = o.user_id;
+    </select>
+    <select id="getOrders" resultMap="orderUserDto">
+        select o.order_id,u.name,d.dname,u.description,a.date,o.register_status
+        from `order` o,user u,attend a,department d,department_doctor dd
+        where
+              o.attend_id in (select attend_id from `order` where user_id = #{userId})
+        <if test="date != null">and a.date = #{date}</if>
+              and o.attend_id = a.attend_id and a.doctor_id = u.id and dd.doctor_id = u.id and dd.department = d.office_id and a.date >= curdate()
+        limit #{current},#{size};
+    </select>
+    <select id="getOrdersofSis" resultMap="orderUserDto">
+        select o.order_id,u.name,d.dname,u.description,a.date
+        from `order` o,user u,attend a,department d,department_doctor dd
+        where
+        o.attend_id in (select attend_id from `order` where user_id = #{userId})
+        <if test="date != null">and a.date = #{date}</if>
+        and o.attend_id = a.attend_id and a.doctor_id = u.id and dd.doctor_id = u.id and dd.department = d.office_id and o.diagnosis_status = 1
+        limit #{current},#{size};
+    </select>
+</mapper>

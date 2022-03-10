@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.lyl.bysj.common.dto.DoctorDto;
 import com.lyl.bysj.common.dto.DoctorFormDto;
 import com.lyl.bysj.common.dto.UserDto;
+import com.lyl.bysj.common.vo.UserVo;
 import com.lyl.bysj.pojo.User;
 
 import java.util.List;
@@ -21,4 +22,6 @@ public interface UserService extends IService<User> {
     DoctorFormDto doctorInfo(int id);
     void updateDoctor(DoctorFormDto dto);
     void saveDoctor(DoctorFormDto dto);
+
+    void saveUser(UserVo userVo);
 }

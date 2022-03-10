@@ -12,6 +12,10 @@
     <resultMap id="DoctorFormDto" type="com.lyl.bysj.common.dto.DoctorFormDto">
         <result column="office_id" property="officeId"/>
     </resultMap>
+    <insert id="insertUser">
+        insert into user(avatar, username, password, name, id_card, phone, created)
+        values (#{userVo.avatar},#{userVo.username},#{userVo.password},#{userVo.name},#{userVo.idCard},#{userVo.phone},#{userVo.created});
+    </insert>
     <select id="selectOneByUsernameAndPasswordFromAdmin" resultMap="User">
         select u.id,u.username,u.password
         from user u,user_role r

@@ -51,9 +51,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     //这里的接口，老子不拦截
     private static final String[] URL_WHITELIST = {
-            "/admin/login",
-            "/admin/logout",
+            "/login",
+            "/logout",
             "/captcha",
+            "/register",
             "favicon.ico"
     };
 

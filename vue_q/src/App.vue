@@ -1,14 +1,31 @@
 <template>
   <div id="app">
-    <nav>
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </nav>
     <router-view/>
   </div>
 </template>
 
+<script>
+export default {
+  name: "App",
+  watch: {
+    $route(to,from){
+      if(to.path !== '/login' && to.path !== '/register'){
+        let obj = {
+          name: to.name,
+          title: to.meta.title
+        }
+        this.$store.commit("addTab",obj)
+      }
+    }
+  }
+}
+</script>
+
 <style>
+*{margin: 0; padding: 0}
+a{
+  text-decoration: none;
+}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -28,5 +45,9 @@ nav a {
 
 nav a.router-link-exact-active {
   color: #42b983;
+}
+
+html,body,#app{
+  height: 100%;
 }
 </style>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lyl.bysj.dao.attendDao">
+    <resultMap id="attendDto" type="com.lyl.bysj.common.dto.AttendDto">
+        <result column="dname" property="department"/>
+    </resultMap>
+    <select id="getAttends" resultMap="attendDto">
+        select a.attend_id,u.name,d.dname,a.date,a.number
+        from user u,attend a,department d,department_doctor dd
+        where
+        <if test="username != ''">u.username = #{username} and</if>
+              <if test="date != null">a.date = #{date} and</if>
+              u.id = a.doctor_id and u.id = dd.doctor_id and dd.department = d.office_id
+        limit #{current},#{size}
+    </select>
+    <select id="userGetAttends" resultMap="attendDto">
+        select a.attend_id,u.name,d.dname,u.description,a.date,a.number
+        from attend a,user u,department d,department_doctor dd
+        where
+              <if test="date != null">a.date = #{date} and</if>
+              <if test="officeId != 0">dd.department = #{officeId} and</if>
+              a.attend_id not in(select o.attend_id from `order` o,user u where o.user_id = u.id and u.username = #{username})
+              and a.doctor_id = dd.doctor_id and d.office_id = dd.department and a.doctor_id = u.id and a.date >= curdate()
+              limit #{current},#{size}
+    </select>
+</mapper>

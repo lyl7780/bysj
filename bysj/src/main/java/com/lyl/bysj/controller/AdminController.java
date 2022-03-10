@@ -1,6 +1,5 @@
 package com.lyl.bysj.controller;
 
-import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -8,14 +7,9 @@ import com.lyl.bysj.common.dto.*;
 import com.lyl.bysj.controller.utils.Const;
 import com.lyl.bysj.controller.utils.result;
 import com.lyl.bysj.pojo.*;
-import com.lyl.bysj.service.DepartmentService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.parameters.P;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,9 +32,6 @@ import java.util.stream.Collectors;
 @RequestMapping("/admin")
 public class AdminController extends BaseController{
 
-    @Autowired
-    BCryptPasswordEncoder passwordEncoder;
-
     @GetMapping("/test")
     public result test(){
         return result.success(123);
@@ -53,13 +44,7 @@ public class AdminController extends BaseController{
      */
     @GetMapping("/menu/nav")
     public result nav(Principal principal){
-        User user = userService.getByUsername(principal.getName());
-        //获取权限信息
-        String authoritiesInfo = userService.getUserAuthoritiesInfo(user.getId());
-        String[] authoritiesInfoArray = StringUtils.tokenizeToStringArray(authoritiesInfo, ",");
-        //获取导航栏信息
-        List<MenuDto> navs = menuService.getCurrentUserNav();
-        return result.success(MapUtil.builder().put("authorities",authoritiesInfoArray).put("nav",navs).map());
+        return getNav(principal);
     }
 
     /**
@@ -307,9 +292,7 @@ public class AdminController extends BaseController{
      */
     @GetMapping("/sys/doctor/departments")
     public result getDepartments(){
-        List<department> departments = departmentService.list();
-        System.out.println(departments);
-        return result.success(departments);
+        return super.getDepartments();
     }
 
     /**
@@ -404,6 +387,56 @@ public class AdminController extends BaseController{
     }
 
     /**
+     * 新增部门
+     * @param department
+     * @return
+     */
+    @PostMapping("/sys/department/save")
+    public result saveDepartment(@RequestBody department department){
+        long num = departmentService.count(new QueryWrapper<department>().eq("dname", department.getName()));
+        if(num != 0){
+            return result.fail("该部门已存在");
+        }
+        departmentService.save(department);
+        return result.success("成功");
+    }
+
+    /**
+     * 修改部门
+     * @param department
+     * @return
+     */
+    @PostMapping("/sys/department/update")
+    public result updateDepartment(@RequestBody department department){
+        long count = departmentService.count(new QueryWrapper<department>().eq("office_id", department.getOfficeId()));
+        if(count == 0){
+            return result.fail("该部门不存在");
+        }
+        departmentService.updateById(department);
+        return result.success("成功");
+    }
+
+    /**
+     * 删除部门
+     * @param id
+     * @return
+     */
+    @DeleteMapping("/sys/department/del/{id}")
+    public result delDepartment(@PathVariable int id){
+        long count = departmentService.count(new QueryWrapper<department>().eq("office_id", id));
+        if(count == 0){
+            System.out.println(id);
+            return result.fail("该部门不存在");
+        }
+        long count1 = departmentDoctorService.count(new QueryWrapper<departmentDoctor>().eq("department", id));
+        if(count1 != 0){
+            return result.fail("您必须先删除该部门下的医生");
+        }
+        departmentService.removeById(id);
+        return result.success("成功");
+    }
+
+    /**
      * 获取当前用户信息
      * @param principal
      * @return
@@ -421,19 +454,7 @@ public class AdminController extends BaseController{
      */
     @PostMapping("/resetPassword")
     public result resetPassword(@Validated @RequestBody PassDto passDto,Principal principal){
-        User user = userService.getByUsername(principal.getName());
-
-        boolean matches = passwordEncoder.matches(passDto.getOldPassword(), user.getPassword());
-        if(!matches){
-            return result.fail("密码不正确");
-        }
-        boolean matches2 = passwordEncoder.matches(passDto.getOldPassword(), passDto.getNewPassword());
-        if(matches2){
-            return result.fail("新旧密码不能一致");
-        }
-        user.setPassword(passwordEncoder.encode(passDto.getNewPassword()));
-        userService.updateById(user);
-        return result.success("成功");
+        return rstPassword(passDto,principal);
     }
 
 }

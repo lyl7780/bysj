@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lyl.bysj.common.dto.DoctorDto;
 import com.lyl.bysj.common.dto.DoctorFormDto;
 import com.lyl.bysj.common.dto.UserDto;
+import com.lyl.bysj.common.vo.UserVo;
 import com.lyl.bysj.controller.utils.Const;
 import com.lyl.bysj.dao.UserDao;
 import com.lyl.bysj.pojo.Menu;
@@ -153,6 +154,26 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
         user.setCreated(LocalDateTime.now());
         this.save(user);
         dto.setId(user.getId());
+    }
+
+    @Override
+    public void saveUser(UserVo userVo) {
+        User user = VoConvert(userVo);
+        this.save(user);
+        userVo.setId(user.getId());
+    }
+
+    public User VoConvert(UserVo userVo){
+        User user = new User();
+        user.setId(userVo.getId());
+        user.setAvatar(userVo.getAvatar());
+        user.setUsername(userVo.getUsername());
+        user.setName(userVo.getName());
+        user.setPassword(userVo.getPassword());
+        user.setIdCard(userVo.getIdCard());
+        user.setPhone(userVo.getPhone());
+        user.setCreated(userVo.getCreated());
+        return user;
     }
 
     public User ConvertToUser(DoctorFormDto dto){

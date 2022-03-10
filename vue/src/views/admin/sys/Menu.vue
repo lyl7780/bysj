@@ -210,6 +210,7 @@ export default {
     },
     HandlerClose(){
       this.resetEditForm('editForm')
+      this.editForm.id = ''
       this.dialogVisible = false
     },
     getMenuTree() {
