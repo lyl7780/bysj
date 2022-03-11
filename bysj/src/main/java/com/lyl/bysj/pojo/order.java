@@ -18,6 +18,8 @@ public class order {
     private Integer registerStatus;
     //诊断状态
     private Integer diagnosisStatus;
+    //排队号
+    private Integer num;
     //诊断内容
     private String diagnosis;
 }

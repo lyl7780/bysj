@@ -7,11 +7,14 @@ import com.lyl.bysj.common.dto.AttendDto;
 import com.lyl.bysj.common.dto.MenuDto;
 import com.lyl.bysj.common.dto.PassDto;
 import com.lyl.bysj.common.dto.orderDoctorDto;
+import com.lyl.bysj.controller.utils.Const;
 import com.lyl.bysj.controller.utils.result;
 import com.lyl.bysj.pojo.User;
 import com.lyl.bysj.pojo.attend;
 import com.lyl.bysj.pojo.order;
 import com.lyl.bysj.utils.LocalDateConverter;
+import com.lyl.bysj.utils.RedisUtil;
+import com.lyl.bysj.utils.Times;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
@@ -120,6 +123,7 @@ public class DoctorController extends BaseController{
         System.out.println(order.getOrderId());
         order.setDiagnosisStatus(1);
         orderService.updateById(order);
+        redisUtil.hset(Const.PAIDUI,order.getAttendId().toString(),order.getNum()+1,new Times().getSecondsTobeforedawn());//到凌晨消失
         return result.success("成功");
     }
 }

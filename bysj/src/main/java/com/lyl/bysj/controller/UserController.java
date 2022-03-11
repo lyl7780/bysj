@@ -124,11 +124,31 @@ public class UserController extends BaseController{
     public result doRegister(@PathVariable int id,@PathVariable int cov){
         order order = orderService.getById(id);
         User user = userService.getById(order.getUserId());
+        //设置感染状态
         user.setCov(cov);
         userService.updateById(user);
+        //设置签到状态
         order.setRegisterStatus(Const.REGISTERSTATUS_ON);
+        //查询当前排队人数
+        long num = orderService.count(new QueryWrapper<order>().isNotNull("num").eq("attend_id",id));
+        //设置排队号
+        order.setNum((int)num+1);
         orderService.updateById(order);
         return result.success("成功");
+    }
+
+    /**
+     * 查看排队状态
+     * @param orderId
+     * @return
+     */
+    @GetMapping("/sys/register/paidui/{orderId}")
+    public result checkPaidui(@PathVariable int orderId){
+        order order = orderService.getById(orderId);
+        PaiduiDto paiduiDto = new PaiduiDto();
+        paiduiDto.setMe(order.getNum());
+        paiduiDto.setNow((Integer) (redisUtil.hget(Const.PAIDUI, order.getAttendId().toString()) == null ?1:redisUtil.hget(Const.PAIDUI,order.getAttendId().toString())));
+        return result.success(paiduiDto);
     }
 
     /**
@@ -154,5 +174,8 @@ public class UserController extends BaseController{
         orderDoctorDto order = orderService.getOrderById(id);
         return result.success(order);
     }
+
+
+
 
 }

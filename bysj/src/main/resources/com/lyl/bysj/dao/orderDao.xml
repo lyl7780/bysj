@@ -30,7 +30,7 @@
         select o.order_id,u.name,d.dname,u.description,a.date,o.register_status
         from `order` o,user u,attend a,department d,department_doctor dd
         where
-              o.attend_id in (select attend_id from `order` where user_id = #{userId})
+              o.order_id in (select order_id from `order` where user_id = #{userId})
         <if test="date != null">and a.date = #{date}</if>
               and o.attend_id = a.attend_id and a.doctor_id = u.id and dd.doctor_id = u.id and dd.department = d.office_id and a.date >= curdate()
         limit #{current},#{size};
@@ -39,7 +39,7 @@
         select o.order_id,u.name,d.dname,u.description,a.date
         from `order` o,user u,attend a,department d,department_doctor dd
         where
-        o.attend_id in (select attend_id from `order` where user_id = #{userId})
+        o.order_id in (select order_id from `order` where user_id = #{userId})
         <if test="date != null">and a.date = #{date}</if>
         and o.attend_id = a.attend_id and a.doctor_id = u.id and dd.doctor_id = u.id and dd.department = d.office_id and o.diagnosis_status = 1
         limit #{current},#{size};

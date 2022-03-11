@@ -61,6 +61,8 @@
         <template slot-scope="scope">
           <el-button type="text" v-if="scope.row.registerStatus === 0" @click="openHandler(scope.row.orderId)">签到</el-button>
           <el-button type="text" v-if="scope.row.registerStatus === 1" disabled>已签到</el-button>
+          <el-divider v-if="scope.row.registerStatus === 1" direction="vertical"></el-divider>
+          <el-button type="text" v-if="scope.row.registerStatus === 1" @click="getPaidui(scope.row.orderId)">状态</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -112,6 +114,14 @@
         </el-form-item>
       </el-form>
     </el-dialog>
+    <el-dialog
+        title="排队信息"
+        :visible.sync="dialogVisiblepaidui"
+        width="600px"
+        :before-close="this.paiduiClose"
+    >
+      <span>您的排队号是【{{paidui.me}}】号,当前正在诊断的是【{{paidui.now}}】号</span>
+    </el-dialog>
   </div>
 </template>
 
@@ -123,6 +133,7 @@ export default {
   data(){
     return{
       dialogVisible: false,
+      dialogVisiblepaidui: false,
       pickerOptions: {
         disabledDate(time) {
           return false;
@@ -149,6 +160,10 @@ export default {
       },
       editFormRules: {
 
+      },
+      paidui: {
+        now: '',
+        me: ''
       },
       date: '',
       tableData: [],
@@ -182,6 +197,15 @@ export default {
         this.size = res.data.data.size
         this.currentPage = res.data.data.currentPage
         this.total = res.data.data.total
+      })
+    },
+    paiduiClose(){
+      this.dialogVisiblepaidui = false
+    },
+    getPaidui(orderId){
+      this.dialogVisiblepaidui = true
+      this.$axios.get('/user/sys/register/paidui/'+orderId).then(res =>{
+        this.paidui = res.data.data
       })
     },
     HandlerClose(){
