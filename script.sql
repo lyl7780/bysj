@@ -1,4 +1,4 @@
-create table attend
+create table if not exists attend
 (
     attend_id int auto_increment
         primary key,
@@ -10,7 +10,7 @@ create table attend
 create index doctor_id
     on attend (doctor_id, attend_id);
 
-create table department
+create table if not exists department
 (
     office_id int auto_increment
         primary key,
@@ -19,7 +19,7 @@ create table department
         unique (office_id)
 );
 
-create table department_doctor
+create table if not exists department_doctor
 (
     id         int auto_increment
         primary key,
@@ -30,7 +30,7 @@ create table department_doctor
 create index department_doctor_department_index
     on department_doctor (department);
 
-create table menu
+create table if not exists menu
 (
     id        bigint auto_increment
         primary key,
@@ -50,7 +50,7 @@ create table menu
 )
     charset = utf8;
 
-create table `order`
+create table if not exists `order`
 (
     order_id         int auto_increment
         primary key,
@@ -58,13 +58,14 @@ create table `order`
     attend_id        int                  null comment '预约哪天哪个医生',
     register_status  tinyint(1) default 0 null comment '是否报到',
     diagnosis_status tinyint(1) default 0 null comment '是否诊断',
+    num              int                  null comment '排队号',
     diagnosis        varchar(2000)        null comment '诊断书'
 );
 
 create index attend_id
     on `order` (attend_id, order_id);
 
-create table role
+create table if not exists role
 (
     id          bigint auto_increment
         primary key,
@@ -79,7 +80,7 @@ create table role
 )
     charset = utf8;
 
-create table role_menu
+create table if not exists role_menu
 (
     id      bigint auto_increment
         primary key,
@@ -90,7 +91,7 @@ create table role_menu
 create index role_menu_role_id_index
     on role_menu (role_id);
 
-create table user
+create table if not exists user
 (
     id          int auto_increment
         primary key,
@@ -109,7 +110,7 @@ create table user
         unique (username, id)
 );
 
-create table user_role
+create table if not exists user_role
 (
     id      bigint auto_increment
         primary key,
