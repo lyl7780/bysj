@@ -18,4 +18,8 @@ public interface OrderService extends IService<order> {
     Page<orderUserDto> getOrders(Page page, int id,LocalDate date);
 
     Page<orderUserDto> getSis(Page page, Integer id, LocalDate convert);
+
+    int countOrderToday();
+
+    void removeAllNewOrder(Integer id);
 }

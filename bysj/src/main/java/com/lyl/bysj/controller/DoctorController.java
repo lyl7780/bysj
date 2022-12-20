@@ -22,8 +22,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 
 @PreAuthorize("hasRole('DOCTOR')")
 @RestController
@@ -121,9 +123,16 @@ public class DoctorController extends BaseController{
     @PostMapping("/sys/order")
     public result updateOrder(@RequestBody order order){
         System.out.println(order.getOrderId());
-        order.setDiagnosisStatus(1);
+        order.setDiagnosisStatus(Const.STATUS_TRUE);
         orderService.updateById(order);
         redisUtil.hset(Const.PAIDUI,order.getAttendId().toString(),order.getNum()+1,new Times().getSecondsTobeforedawn());//到凌晨消失
+        //如果是发热门诊出诊断，代表出院，将信息改回绿码
+        if(Objects.equals(order.getAttendId(), Const.FARE_ORDER)){
+            User user = userService.getById(order.getUserId());
+            user.setCov(Const.STATUS_FALSE);
+            user.setUpdated(LocalDateTime.now());
+            userService.updateById(user);
+        }
         return result.success("成功");
     }
 }

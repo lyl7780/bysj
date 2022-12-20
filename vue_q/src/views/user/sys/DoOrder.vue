@@ -52,6 +52,10 @@
       <el-table-column
           prop="date"
           label="日期">
+        <template slot-scope="scope">
+          <span v-if="scope.row.date === '9999-09-09'">不限</span>
+          <span v-else>{{scope.row.date}}</span>
+        </template>
       </el-table-column>
       <el-table-column
           prop="number"
@@ -62,7 +66,7 @@
           label="操作"
           show-overflow-tooltip>
         <template slot-scope="scope">
-          <el-button type="text" @click="doOrder(scope.row.attendId)">预约</el-button>
+          <el-button type="text" @click="orderCheck(scope.row.attendId)">预约</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -77,6 +81,43 @@
         :total="total"
         style="text-align: right;padding-top: 22px">
     </el-pagination>
+    <el-dialog
+        title="流行病学调查"
+        :visible.sync="dialogVisible"
+        width="600px"
+        :before-close="this.HandlerClose"
+    >
+      <el-form :model="editForm" :rules="editFormRules" ref="editForm" label-width="100px" label-position="left" class="demo-editForm">
+        <el-form-item label="1、14天内是否去过中高风险地区" prop="area" label-width="300px">
+
+          <el-radio-group v-model="editForm.area">
+            <el-radio :label="0">否</el-radio>
+            <el-radio :label="1">是</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="2、您最近是否有发热或咳嗽乏力等症状" prop="kes" label-width="300px">
+          <el-radio-group v-model="editForm.kes">
+            <el-radio :label="0">否</el-radio>
+            <el-radio :label="1">是</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="3、14天内是否接触过发热咳嗽人员" prop="meetk" label-width="300px">
+          <el-radio-group v-model="editForm.meetk">
+            <el-radio :label="0">否</el-radio>
+            <el-radio :label="1">是</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="4、是否被确认为新冠" prop="cov" label-width="300px">
+          <el-radio-group v-model="editForm.cov">
+            <el-radio :label="0">否</el-radio>
+            <el-radio :label="1">是</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="doOrder()">提交</el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
   </div>
 </template>
 
@@ -85,6 +126,28 @@ export default {
   name: "DoOrder",
   data(){
     return{
+      dialogVisible: false,
+      editForm: {
+        id: '',
+        area: '',
+        kes: '',
+        meetk: '',
+        cov: ''
+      },
+      editFormRules: {
+        area: [
+          { required: true, message: '请选择', trigger: 'blur' }
+        ],
+        kes: [
+          { required: true, message: '请选择', trigger: 'blur' }
+        ],
+        meetk: [
+          { required: true, message: '请选择', trigger: 'blur' }
+        ],
+        cov: [
+          { required: true, message: '请选择', trigger: 'blur' }
+        ],
+      },
       pickerOptions: {
         disabledDate(time) {
           return time.getTime() <= Date.now();
@@ -118,20 +181,52 @@ export default {
       this.multipleSelection = val;
       this.delBtnStatus = val.length === 0
     },
+    HandlerClose(){
+      this.dialogVisible = false
+    },
     handleSizeChange(val) {
       console.log(`每页 ${val} 条`);
     },
     handleCurrentChange(val) {
       console.log(`当前页: ${val}`);
     },
-    doOrder(id){
-      this.$axios.post('/user/sys/order/'+id).then( res =>{
-        this.$message({
-          type: 'success',
-          message: '预约成功!'
-        });
-        this.getTableData()
+    orderCheck(id){
+      this.$axios.get('/user/userInfo').then( res =>{
+        if(res.data.data.cov !== 0){
+          this.$message({
+            type: 'error',
+            message: '您当前不能进行预约!'
+          });
+        }else{
+          this.dialogVisible = true
+          this.editForm.id = id
+        }
       })
+    },
+    doOrder(){
+      let cov = 0;
+      if(this.editForm.cov === 1){
+        cov = 2;
+      }else if(this.editForm.area === 1 || this.editForm.kes === 1 || this.editForm.meetk === 1){
+        cov = 1;
+      }
+      console.log(this.editForm.id)
+      if(cov === 0){
+        this.$axios.post('/user/sys/order/'+this.editForm.id).then( res =>{
+          this.$message({
+            type: 'success',
+            message: '预约成功!'
+          });
+          this.HandlerClose()
+          this.getTableData()
+        })
+      }else{
+        this.$axios.post("/user/sys/emergencyOrder/"+cov).then( res =>{
+          this.HandlerClose()
+          this.$alert("我们会立刻电话联系您，请保持讯号畅通，避免外界接触！","警告");
+          this.getTableData()
+        })
+      }
     },
     getDepartments() {
       this.$axios.get('/user/sys/doctor/departments').then(res => {

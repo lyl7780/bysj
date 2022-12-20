@@ -43,6 +43,10 @@
       <el-table-column
           prop="date"
           label="日期">
+        <template slot-scope="scope">
+          <span v-if="scope.row.date === '9999-09-09'">不限</span>
+          <span v-else>{{scope.row.date}}</span>
+        </template>
       </el-table-column>
       <el-table-column
           prop="number"

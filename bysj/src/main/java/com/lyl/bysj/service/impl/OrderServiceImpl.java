@@ -54,4 +54,15 @@ public class OrderServiceImpl extends ServiceImpl<orderDao, order> implements Or
         page.setRecords(o);
         return page;
     }
+
+    @Override
+    public int countOrderToday() {
+        int count = orderDao.getCountOrderToday();
+        return count;
+    }
+
+    @Override
+    public void removeAllNewOrder(Integer id) {
+        orderDao.delOrdersAfterToday(id);
+    }
 }

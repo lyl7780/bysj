@@ -115,7 +115,7 @@
         <el-form-item label="姓名" prop="name" label-width="100px">
           <el-input v-model="userForm.name"></el-input>
         </el-form-item>
-        <el-form-item label="身份证号" prop="phone" label-width="100px">
+        <el-form-item label="身份证号" prop="idCard" label-width="100px">
           <el-input v-model="userForm.idCard"></el-input>
         </el-form-item>
         <el-form-item label="电话" prop="phone" label-width="100px">
@@ -154,6 +154,15 @@ export default {
         callback()
       }
     }
+    const idCheck = async(rule, value, callback) => {
+      if(value.length === 0){
+        callback(new Error('请输入身份证号!'));
+      } else if(value.length !== 18){
+        callback(new Error('身份证号必须为18位！'));
+      }else {
+        callback()
+      }
+    }
     return {
       dialogVisibleUser: false,
       delBtnStatus: true,
@@ -178,7 +187,7 @@ export default {
           { required: true, validator: pwdCheck, trigger: 'blur' }
         ],
         idCard: [
-          { required: true, message: '请输入身份证号', trigger: 'blur' }
+          { required: true, validator: idCheck, trigger: 'blur' }
         ],
       },
       tableData: [],

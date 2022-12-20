@@ -12,7 +12,7 @@
         where
         <if test="username != ''">u.username = #{username} and</if>
               <if test="date != null">a.date = #{date} and</if>
-              u.id = a.doctor_id and u.id = dd.doctor_id and dd.department = d.office_id
+              u.id = a.doctor_id and u.id = dd.doctor_id and dd.department = d.office_id and a.date >= curdate()
         limit #{current},#{size}
     </select>
     <select id="userGetAttends" resultMap="attendDto">

@@ -12,13 +12,18 @@
         <result column="order_id" property="orderId"/>
         <result column="dname" property="department"/>
     </resultMap>
+    <delete id="delOrdersAfterToday">
+        delete from `order`
+        where user_id = #{id} and order_id in
+        (select order_id from (select o.order_id from `order` o,attend a where o.attend_id = a.attend_id and a.date >= curdate()) as a);
+    </delete>
     <select id="getDoctorOrders" resultMap="orderDoctorDto">
         select o.order_id,u.name,u.id_card,a.date,u.cov,o.diagnosis_status
         from `order` o,user u,attend a
         where
               o.attend_id in (select a.attend_id
                               from attend a,user u
-                              where a.date = #{localDate} and u.username = #{doctorName} and a.doctor_id = u.id)
+                              where (a.date = #{localDate} or a.date = '9999-09-09') and u.username = #{doctorName} and a.doctor_id = u.id)
               and o.user_id = u.id and a.attend_id = o.attend_id and o.register_status = 1;
     </select>
     <select id="getOrderById" resultMap="orderDoctorDto">
@@ -43,5 +48,11 @@
         <if test="date != null">and a.date = #{date}</if>
         and o.attend_id = a.attend_id and a.doctor_id = u.id and dd.doctor_id = u.id and dd.department = d.office_id and o.diagnosis_status = 1
         limit #{current},#{size};
+    </select>
+    <select id="getCountOrderToday" resultType="java.lang.Integer">
+        select count(*)
+        from `order` o,attend a
+        where
+        o.attend_id = a.attend_id and a.date = curdate()
     </select>
 </mapper>

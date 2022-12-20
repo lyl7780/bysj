@@ -437,6 +437,26 @@ public class AdminController extends BaseController{
     }
 
     /**
+     * 预计接诊人数
+     * @return
+     */
+    @GetMapping("/sys/orderToday")
+    public result orderToday(){
+        int orders = orderService.countOrderToday();
+        return result.success(orders);
+    }
+
+    /**
+     * 疑似人数
+     * @return
+     */
+    @GetMapping("/sys/covCount")
+    public result covCount(){
+        long users = userService.count(new QueryWrapper<User>().eq("cov",1));
+        return result.success(users);
+    }
+
+    /**
      * 获取当前用户信息
      * @param principal
      * @return

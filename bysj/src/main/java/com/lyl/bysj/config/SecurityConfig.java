@@ -49,12 +49,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder();
     }
 
-    //这里的接口，老子不拦截
+    //这里的接口不拦截
     private static final String[] URL_WHITELIST = {
             "/login",
             "/logout",
             "/captcha",
             "/register",
+            "/lll/test",
             "favicon.ico"
     };
 

@@ -1,5 +1,6 @@
 package com.lyl.bysj.controller;
 
+import cn.hutool.core.date.DateTime;
 import cn.hutool.db.sql.Order;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -20,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.security.Principal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @PreAuthorize("hasRole('USER')")
 @RestController
@@ -86,6 +88,9 @@ public class UserController extends BaseController{
     @PostMapping("/sys/order/{id}")
     public result doOrder(@PathVariable Integer id,Principal principal){
         User user = userService.getByUsername(principal.getName());
+        if(user.getCov() != 0){
+            return result.fail("您无法进行预约");
+        }
         long count = orderService.count(new QueryWrapper<order>().eq("user_id", user.getId()).eq("attend_id", id));
         if(count != 0){
             return result.fail("您已经预约过了");
@@ -175,7 +180,48 @@ public class UserController extends BaseController{
         return result.success(order);
     }
 
+    /**
+     * 预约发热应急处理
+     * @param principal
+     * @return
+     */
+    @PostMapping("/sys/emergencyOrder/{cov}")
+    public result emergencyOrder(Principal principal,@PathVariable int cov){
+        User user = userService.getByUsername(principal.getName());
+        //更新cov信息
+        user.setCov(cov);
+        user.setUpdated(LocalDateTime.now());
+        userService.updateById(user);
+        //删除今天以后所有的预约
+        orderService.removeAllNewOrder(user.getId());
+        //新建发热门诊的预约
+        order order = new order();
+        order.setUserId(user.getId());
+        order.setAttendId(Const.FARE_ORDER);
+        orderService.save(order);
+        return result.success("转移成功");
+    }
 
-
+    /**
+     * 现场发热应急处理
+     * @return principal
+     */
+    @PostMapping("/sys/emergencyCheck/{cov}")
+    public result emergencyCheck(Principal principal,@PathVariable int cov){
+        User user = userService.getByUsername(principal.getName());
+        //更新cov信息
+        user.setCov(cov);
+        user.setUpdated(LocalDateTime.now());
+        userService.updateById(user);
+        //删除今天以后的所有预约
+        orderService.removeAllNewOrder(user.getId());
+        //新建发热门诊的预约
+        order order = new order();
+        order.setUserId(user.getId());
+        order.setRegisterStatus(Const.STATUS_TRUE);
+        order.setAttendId(Const.FARE_ORDER);
+        orderService.save(order);
+        return result.success("转移成功");
+    }
 
 }

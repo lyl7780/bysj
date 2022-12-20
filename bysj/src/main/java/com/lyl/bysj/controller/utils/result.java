@@ -36,4 +36,9 @@ public class result {
         return r;
     }
 
+    public result(int code,Object data,String msg){
+        this.code = code;
+        this.data = data;
+        this.msg = msg;
+    }
 }

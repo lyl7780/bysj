@@ -45,6 +45,10 @@
       <el-table-column
           prop="date"
           label="日期">
+        <template slot-scope="scope">
+          <span v-if="scope.row.date === '9999-09-09'">不限</span>
+          <span v-else>{{scope.row.date}}</span>
+        </template>
       </el-table-column>
       <el-table-column
           prop="registerStatus"
@@ -59,7 +63,7 @@
           label="操作"
           show-overflow-tooltip>
         <template slot-scope="scope">
-          <el-button type="text" v-if="scope.row.registerStatus === 0" @click="openHandler(scope.row.orderId)">签到</el-button>
+          <el-button type="text" v-if="scope.row.registerStatus === 0 && (scope.row.date === new Date() || scope.row.date === '9999-09-09')" @click="openHandler(scope.row.orderId)">签到</el-button>
           <el-button type="text" v-if="scope.row.registerStatus === 1" disabled>已签到</el-button>
           <el-divider v-if="scope.row.registerStatus === 1" direction="vertical"></el-divider>
           <el-button type="text" v-if="scope.row.registerStatus === 1" @click="getPaidui(scope.row.orderId)">状态</el-button>
@@ -159,7 +163,18 @@ export default {
         cov: ''
       },
       editFormRules: {
-
+        area: [
+          { required: true, message: '请选择', trigger: 'blur' }
+        ],
+        kes: [
+          { required: true, message: '请选择', trigger: 'blur' }
+        ],
+        meetk: [
+          { required: true, message: '请选择', trigger: 'blur' }
+        ],
+        cov: [
+          { required: true, message: '请选择', trigger: 'blur' }
+        ],
       },
       paidui: {
         now: '',
@@ -219,15 +234,23 @@ export default {
         cov = 1;
       }
       console.log(this.editForm.id)
-      this.$axios.post("/user/sys/doRegister/"+this.editForm.id+'/'+cov).then( res =>{
-        this.$message({
-          showClose: true,
-          message: '签到成功！',
-          type: "success",
+      if(cov === 0){
+        this.$axios.post("/user/sys/doRegister/"+this.editForm.id+'/'+cov).then( res =>{
+          this.$message({
+            showClose: true,
+            message: '签到成功！',
+            type: "success",
+          })
+          this.HandlerClose()
+          this.getTableData()
         })
-        this.HandlerClose()
-        this.getTableData()
-      })
+      }else{
+        this.$axios.post("/user/sys/emergencyCheck/"+cov).then( res =>{
+          this.HandlerClose()
+          this.$alert("请听从相关人员指示，进入发热门诊就诊！","警告");
+          this.getTableData()
+        })
+      }
     }
   },
   watch: {

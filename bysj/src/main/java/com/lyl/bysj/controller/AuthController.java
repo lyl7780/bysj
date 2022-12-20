@@ -6,6 +6,7 @@ import com.google.code.kaptcha.Producer;
 import com.lyl.bysj.Exception.captchaException;
 import com.lyl.bysj.common.vo.UserVo;
 import com.lyl.bysj.controller.utils.Const;
+import com.lyl.bysj.controller.utils.abaaba;
 import com.lyl.bysj.controller.utils.result;
 import com.lyl.bysj.pojo.UserRole;
 import org.apache.commons.lang3.StringUtils;
@@ -101,5 +102,12 @@ public class AuthController extends BaseController{
         u.setRoleId(Const.ROLE_USER);
         userRoleService.save(u);
         return result.success("成功");
+    }
+
+    @GetMapping("/lll/test")
+    public result test(){
+        abaaba abaaba = new abaaba();
+        abaaba.setToken("121242r");
+        return new result(304,abaaba,"redirect:/login");
     }
 }
