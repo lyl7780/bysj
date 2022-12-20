@@ -6,7 +6,7 @@
 #### 软件架构
 软件架构说明
 前端使用 vue + element-ui
-后端使用 springboot + spring security + reids
+后端使用 springboot + spring security + redis
 
 #### 安装教程
 
